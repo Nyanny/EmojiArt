@@ -33,8 +33,8 @@ struct EmojiArtDocumentView: View {
                             .offset(self.panOffset)
                     )
                         .gesture(self.doubleTapToZoom(in: geometry.size))
-                            .gesture(self.panGesture())
-                            .gesture(self.zoomGesture())
+//                            .gesture(self.panGesture())
+//                            .gesture(self.zoomGesture())
                     ForEach(self.document.emojis) { emoji in
                         Text(emoji.text)
                                 .gesture(self.panEmojiGesture(emoji: emoji))
