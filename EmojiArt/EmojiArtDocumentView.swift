@@ -33,9 +33,12 @@ struct EmojiArtDocumentView: View {
                             .offset(self.panOffset)
                     )
                         .gesture(self.doubleTapToZoom(in: geometry.size))
-                    
+                            .gesture(self.panGesture())
+                            .gesture(self.zoomGesture())
                     ForEach(self.document.emojis) { emoji in
                         Text(emoji.text)
+                                .gesture(self.panEmojiGesture(emoji: emoji))
+//                                .gesture(self.scaleEmojiGesture(emoji: emoji))
                             .font(animatableWithSize: emoji.fontSize * zoomScale)
                             .position(self.position(for: emoji, in: geometry.size))
                     }
@@ -58,7 +61,7 @@ struct EmojiArtDocumentView: View {
     private let defaultEmojiSize: CGFloat = 40
     @State private var steadyStateZoomScale: CGFloat = 1.0
     @GestureState private var gestureZoomScale: CGFloat = 1.0
-    
+
     @State private var steadyStatePanOffset: CGSize = .zero
     @GestureState private var gesturePanOffset: CGSize = .zero
     
@@ -89,7 +92,7 @@ struct EmojiArtDocumentView: View {
                 self.steadyStatePanOffset = self.steadyStatePanOffset + (finalDragGestureValue.translation / self.zoomScale)
             }
     }
-    
+
     private func doubleTapToZoom(in size: CGSize) -> some Gesture{
         TapGesture(count: 2)
             .onEnded{
@@ -127,6 +130,36 @@ struct EmojiArtDocumentView: View {
             }
         }
         return found
+    }
+
+    @GestureState private var gesturePanEmojisOffset: CGSize = .zero
+    private func panEmojiGesture(emoji: EmojiArt.Emoji) -> some Gesture{
+        DragGesture()
+                .updating($gesturePanEmojisOffset) { latestDragGestureValue, gestureDragEmojisOffset, transition in
+                    gestureDragEmojisOffset = latestDragGestureValue.translation / zoomScale
+                }
+                .onEnded {finalDragGestureValue in
+                    document.moveEmoji(emoji, by: finalDragGestureValue.translation / zoomScale)
+                }
+    }
+
+    // TODO Delete if theres no need to scale emoji without scaling backgroundimage
+    @GestureState private var gestureZoomScaleEmoji: CGFloat = 1.0
+    private func scaleEmojiGesture(emoji: EmojiArt.Emoji) -> some Gesture {
+//        MagnificationGesture()
+//                .updating($gestureZoomScale, body: { latestGestureScale, gestureZoomScaleEmoji, transaction in
+//                    gestureZoomScaleEmoji = latestGestureScale
+//                })
+//                .onEnded { finalGestureScale in
+//                    document.scaleEmoji(emoji, by: finalGestureScale)
+//                }
+        MagnificationGesture()
+                .updating($gestureZoomScale, body: { latestGestureScale, gestureZoomScale, transaction in
+                    gestureZoomScale = latestGestureScale
+                })
+                .onEnded { finalGestureScale in
+                    document.scaleEmoji(emoji, by: finalGestureScale)
+                }
     }
 }
 
