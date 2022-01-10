@@ -7,18 +7,12 @@
 
 import SwiftUI
 
-extension Grid where Item: Identifiable, ID == Item.ID {
-    init(_ items: [Item], viewForItem: @escaping (Item) -> ItemView) {
-        self.init(items, id: \Item.id, viewForItem: viewForItem)
-    }
-}
-
-struct Grid<Item, ID, ItemView>: View where ID: Hashable, ItemView: View {    /// care a little bit about type; generics + protocols
-    private var items: [Item]       /// becuase of the initializer can be private
+struct Grid<Item, ID, ItemView>: View where ID: Hashable, ItemView: View {
+    private var items: [Item]
     private var id: KeyPath<Item, ID>
     private var viewForItem: (Item) -> ItemView
     
-    init(_ items: [Item], id: KeyPath<Item,ID>, viewForItem: @escaping (Item) -> ItemView) {  /// make function as a reference type
+    init(_ items: [Item], id: KeyPath<Item,ID>, viewForItem: @escaping (Item) -> ItemView) {
         self.items = items
         self.id = id
         self.viewForItem = viewForItem
@@ -44,7 +38,11 @@ struct Grid<Item, ID, ItemView>: View where ID: Hashable, ItemView: View {    //
     }
 }
 
-
+extension Grid where Item: Identifiable, ID == Item.ID {
+    init(_ items: [Item], viewForItem: @escaping (Item) -> ItemView) {
+        self.init(items, id: \Item.id, viewForItem: viewForItem)
+    }
+}
 //struct Grid_Previews: PreviewProvider {
 //    static var previews: some View {
 //        Grid()
