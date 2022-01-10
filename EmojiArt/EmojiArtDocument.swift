@@ -15,7 +15,16 @@ class EmojiArtDocument: ObservableObject {
     private static let untitled = "EmojiArtDocument.untitled"
     
     private var autosaveCancellable: AnyCancellable?
-    
+
+    init() {
+        emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.untitled)) ?? EmojiArt()
+        print("\(emojiArt.json?.utf8 ?? "nil")")
+        autosaveCancellable = $emojiArt.sink { emojiArt in
+            UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitled)
+        }
+        fetchBackgroundImageData()
+    }
+
     var emojis: [EmojiArt.Emoji] {
         emojiArt.emojis
     }
